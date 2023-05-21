@@ -1,0 +1,9 @@
+resource_group_name       = "TestRG"
+location                  = "eastus"
+vnet_name                 = "VNet"
+vnet_address_space        = ["10.0.0.0/16"]
+aks_subnet_name           = "VMSubnet"
+aks_subnet_address_prefix = ["10.0.0.0/24"]
+aks_name                  = "TestEnv-Aks"
+default_node_pool_vm_size = "Standard_F8s_v2"
+agent_node_pool_vm_size   = "Standard_F8s_v2"

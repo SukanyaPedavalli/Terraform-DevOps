@@ -16,7 +16,7 @@ Function SetEnvVariables() {
 
 Function RunTerraform()
 {
-    $tfVarsPath = "$workspaceFolder/tfvars/auto.tfvars"
+    $tfVarsPath = "$workspaceFolder/tfvars/aks.auto.tfvars"
     $sshPublicKey = Get-Content "$env:USERPROFILE\.ssh\id_rsa.pub"
     Write-Host $tfVarsPath
 
