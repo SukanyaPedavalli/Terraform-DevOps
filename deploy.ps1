@@ -17,15 +17,16 @@ Function SetEnvVariables() {
 Function RunTerraform()
 {
     $tfVarsPath = "$workspaceFolder/tfvars/auto.tfvars"
+    $sshPublicKey = Get-Content "$env:USERPROFILE\.ssh\id_rsa.pub"
     Write-Host $tfVarsPath
 
     Set-Location ./terraform 
     if ($apply) {
-        terraform apply -var-file="$tfVarsPath"
+        terraform apply -var-file="$tfVarsPath" -var ssh_public_key=$sshPublicKey
     } else {
         terraform validate
         terraform init
-        terraform plan -var-file="$tfVarsPath"
+        terraform plan -var-file="$tfVarsPath" -var ssh_public_key=$sshPublicKey
     }
 }
 

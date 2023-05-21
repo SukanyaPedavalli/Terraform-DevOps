@@ -60,3 +60,13 @@ variable admin_ssh_public_key {
   description = "Specifies the public SSH key"
   type        = string
 }
+
+variable bastion_subnet_address_prefix {
+  description = "(Required) The address prefix of the bastion host used to connect to the virtual machine"
+  type = string
+}
+
+variable tags {
+  description = "(Optional) The tags that need to be attached to the resources"
+  default = {}
+}
