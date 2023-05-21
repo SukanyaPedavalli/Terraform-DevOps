@@ -61,3 +61,22 @@ module "bastion_host" {
   resource_group_name          = azurerm_resource_group.rg.name
   subnet_id                    = module.network.subnet_ids["AzureBastionSubnet"]
 }
+
+resource "random_string" "storage_account_suffix" {
+  length  = 8
+  special = false
+  lower   = true
+  upper   = false
+  numeric  = false
+}
+
+module "storage_account" {
+    source = "./modules/storage_account"
+    name =  "${local.storage_account_prefix}${random_string.storage_account_suffix.result}"
+    location = var.location
+    resource_group_name = azurerm_resource_group.rg.name
+    account_kind = var.storage_account_kind
+    account_tier = var.storage_account_tier
+    //ip_rules = var.storage_account_iprules
+    //virtual_network_subnet_ids = [module.network.subnet_ids["VMSubnet"]]
+}

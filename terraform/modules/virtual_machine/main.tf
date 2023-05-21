@@ -8,23 +8,6 @@ terraform {
   required_version = ">= 0.14.9"
 }
 
-resource "azurerm_public_ip" "public_ip" {
-  name                = "${var.name}PublicIp"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  allocation_method   = "Static"
-  domain_name_label   = lower(var.domain_name_label)
-  count               = var.public_ip ? 1 : 0
-  tags                = var.tags
-
-  lifecycle {
-    ignore_changes = [
-        tags
-    ]
-  }
-  
-}
-
 resource "azurerm_network_security_group" "nsg" {
   name                = "${var.name}NSG"
   location            = var.location
@@ -39,7 +22,7 @@ resource "azurerm_network_security_group" "nsg" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "22"
-    source_address_prefix      = "*"
+    source_address_prefix      = var.bastion_subnet_address_prefix
     destination_address_prefix = "*"
   }
 
@@ -61,7 +44,6 @@ resource "azurerm_network_interface" "nic" {
     name                          = "Configuration"
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Static"
-    public_ip_address_id          = try(azurerm_public_ip.public_ip[0].id, null)
   }
 
   lifecycle {
@@ -116,32 +98,4 @@ resource "azurerm_linux_virtual_machine" "virtual_machine" {
     azurerm_network_interface.nic,
     azurerm_network_security_group.nsg
   ]
-}
-
-resource "azurerm_virtual_machine_extension" "dependency_agent" {
-  name                       = "${var.name}DependencyAgent"
-  virtual_machine_id         = azurerm_linux_virtual_machine.virtual_machine.id
-  publisher                  = "Microsoft.Azure.Monitoring.DependencyAgent"
-  type                       = "DependencyAgentLinux"
-  type_handler_version       = "9.10"
-  auto_upgrade_minor_version = true
- 
-  settings = <<SETTINGS
-    {
-      "workspaceId": "${var.log_analytics_workspace_id}"
-    }
-  SETTINGS
- 
-  protected_settings = <<PROTECTED_SETTINGS
-    {
-      "workspaceKey": "${var.log_analytics_workspace_key}"
-    }
-  PROTECTED_SETTINGS
-
-  lifecycle {
-    ignore_changes = [
-      tags
-    ]
-  }
-  depends_on = [azurerm_virtual_machine_extension.monitor_agent]
 }

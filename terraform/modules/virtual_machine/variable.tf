@@ -35,20 +35,8 @@ variable "os_disk_storage_account_type" {
   }
 }
 
-variable public_ip {
-  description = "(Optional) Specifies whether create a public IP for the virtual machine"
-  type = bool
-  default = false
-}
-
-
 variable location {
   description = "(Required) Specifies the location of the virtual machine"
-  type = string
-}
-
-variable domain_name_label {
-  description = "(Required) Specifies the DNS domain name of the virtual machine"
   type = string
 }
 
@@ -61,4 +49,14 @@ variable vm_user {
   description = "(Required) Specifies the username of the virtual machine"
   type        = string
   default     = "azadmin"
+}
+
+variable boot_diagnostics_storage_account {
+  description = "(Optional) The Primary/Secondary Endpoint for the Azure Storage Account (general purpose) which should be used to store Boot Diagnostics, including Console Output and Screenshots from the Hypervisor."
+  default     = null
+}
+
+variable admin_ssh_public_key {
+  description = "Specifies the public SSH key"
+  type        = string
 }
