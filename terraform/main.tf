@@ -31,6 +31,10 @@ terraform {
   }
 }
 
+locals {
+  app_namespace = "app"
+}
+
 data "azurerm_client_config" "current" {
 }
 
@@ -175,9 +179,36 @@ module "certificate_manager" {
   source                                = "./modules/cert_manager"
   namespace                             = "cert-manager"
   http_acme_resolver_ingress_class_name = module.nginx_ingress_controller.ingress_class_name
-  lets_encrypt_cluster_issuer_name      = "letsencrypt-staging"
+  lets_encrypt_cluster_issuer_name      = var.cert_issuer_name //"letsencrypt-staging"
   lets_encrypt_private_key_secret_name  = "letsencrypt-staging"
   lets_encrypt_user_email               = "sukanya.pedavalli@gmail.com"
   lets_encrypt_server                   = "https://acme-staging-v02.api.letsencrypt.org/directory"
+}
+
+resource "kubernetes_namespace" "app_namespace" {
+  metadata {
+    name = local.app_namespace
+  }
+}
+
+resource "helm_release" "hello_world_app" {
+  name      = "hello-world"
+  namespace = local.app_namespace
+  chart     = "./apps/hello-world"
+
+  set {
+    name  = "ingress.className"
+    value = module.nginx_ingress_controller.ingress_class_name
+  }
+
+  set {
+    name  = "ingress.dnsname"
+    value = azurerm_dns_cname_record.ingress_dns_record.fqdn
+  }
+
+  set {
+    name  = "ingress.certissuer"
+    value = module.certificate_manager.cert_issuer_name
+  }
 }
 
