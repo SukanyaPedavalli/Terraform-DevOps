@@ -8,6 +8,35 @@ output "id" {
   description = "Specifies the resource id of the AKS cluster."
 }
 
+output "host" {
+  value       = azurerm_kubernetes_cluster.aks_cluster.kube_config.0.host
+  description = "Specifies the host name of the kubernetes cluster defined in the kubeconfig"
+}
+
+output "username" {
+  value       = azurerm_kubernetes_cluster.aks_cluster.0.username
+  description = "Specifies the username"
+}
+
+output "password" {
+  value       = azurerm_kubernetes_cluster.aks_cluster.0.password
+  description = "Specifies the password for the aks cluster"
+}
+
+output "client_certificate" {
+  value = base64decode(azurerm_kubernetes_cluster.aks_cluster.kube_config.0.client_certificate)
+  description = "Specifies the client certificate"
+}
+
+output "client_key" {
+  value = base64decode(azurerm_kubernetes_cluster.aks_cluster.kube_config.0.client_key)
+  description = "Specifies the client key"
+}
+
+output "cluster_ca_certificate" {
+  value = base64decode(azurerm_kubernetes_cluster.aks_cluster.kube_config.0.cluster_ca_certificate)
+  description = "Speicifes the ca certificate"
+}
 
 output "aks_identity_principal_id" {
   value       = azurerm_user_assigned_identity.aks_identity.principal_id

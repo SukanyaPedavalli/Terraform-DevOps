@@ -29,6 +29,16 @@ variable "aks_subnet_address_prefix" {
   type        = list(string)
 }
 
+variable "private_endpoints_subnet_name" {
+  description = "Specifies the name of the subnet in which the private endpoints are created"
+  type        = string
+}
+
+variable "private_endpoints_subnet_address_prefix" {
+  description = "Specifies the address prefix of the subnet for the private endpoints deployment"
+  type        = list(string)
+}
+
 variable "aks_name" {
   description = "Specifies the name of the virtual machine"
   default     = "TestVm"
@@ -54,4 +64,32 @@ variable "admin_username" {
 variable "ssh_public_key" {
   description = "(Required) Specifies the SSH public key for the jumpbox virtual machine and AKS worker nodes."
   type        = string
+}
+
+variable "sql_server_name" {
+  description = "(Required) The name of the sql server"
+  type        = string
+}
+
+variable "sql_server_administrator_login" {
+  description = "(Required) The administrator user login for the sql server"
+  type        = string
+}
+
+variable "sql_server_administrator_login_password" {
+  description = "(Required) The password for the user login for the sql server"
+}
+
+variable "sql_server_databases" {
+  description = "(Required) The list of the names of the sqlserver databases"
+  type        = list(string)
+}
+
+variable "sql_server_firewall_rules" {
+  description = "(Required) The list of the firewall rules to be applied to the sql server."
+  type = list(object({
+    name             = string
+    start_ip_address = string
+    end_ip_address   = string
+  }))
 }

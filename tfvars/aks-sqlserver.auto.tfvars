@@ -1,0 +1,19 @@
+resource_group_name                     = "TestRG"
+location                                = "eastus"
+vnet_name                               = "VNet"
+vnet_address_space                      = ["10.0.0.0/16"]
+aks_subnet_name                         = "VMSubnet"
+aks_subnet_address_prefix               = ["10.0.0.0/24"]
+private_endpoints_subnet_name           = "PrivateEndpointsSubnet"
+private_endpoints_subnet_address_prefix = ["10.0.1.0/24"]
+aks_name                                = "TestEnv-Aks"
+default_node_pool_vm_size               = "Standard_F8s_v2"
+agent_node_pool_vm_size                 = "Standard_F8s_v2"
+sql_server_name                         = "testsqlserver-01"
+sql_server_administrator_login          = "azadmin"
+sql_server_databases                    = ["testdb"]
+sql_server_firewall_rules = [{
+  name             = "mylaptop"
+  start_ip_address = "75.60.207.196"
+  end_ip_address   = "75.60.207.196"
+}]
