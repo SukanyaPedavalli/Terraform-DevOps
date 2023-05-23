@@ -1,3 +1,22 @@
+terraform {
+  required_providers {
+    kubectl = {
+      source  = "gavinbunney/kubectl"
+      version = ">=1.14.0"
+    }
+
+    helm = {
+      source  = "hashicorp/helm"
+      version = ">=1.3.2"
+    }
+
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = ">=2.20.0"
+    }
+  }
+}
+
 resource "kubernetes_namespace" "ns" {
   metadata {
     name = var.namespace

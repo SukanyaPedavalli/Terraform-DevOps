@@ -23,3 +23,8 @@ variable "domain_name_label" {
   description = "(Optional) the domain name label to be used for the public ip address."
   type        = string
 }
+
+variable "tags" {
+  description = "(Optional) Tags for the resource"
+  default     = {}
+}

@@ -5,14 +5,19 @@ terraform {
       version = "3.49.0"
     }
 
+    kubectl = {
+      source  = "gavinbunney/kubectl"
+      version = ">=1.14.0"
+    }
+
     helm = {
       source  = "hashicorp/helm"
-      version = "1.3.2"
+      version = ">=1.3.2"
     }
 
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "2.20.0"
+      version = ">=2.20.0"
     }
   }
 }
@@ -84,12 +89,12 @@ module "aks" {
   ssh_public_key                        = var.ssh_public_key
 }
 
-resource "azurerm_role_assignment" "network_contributor" {
-  scope                            = azurerm_resource_group.rg.id
-  role_definition_name             = "Network Contributor"
-  principal_id                     = module.aks.aks_identity_principal_id
-  skip_service_principal_aad_check = true
-}
+//resource "azurerm_role_assignment" "network_contributor" {
+//  scope                            = azurerm_resource_group.rg.id
+//  role_definition_name             = "Network Contributor"
+//  principal_id                     = module.aks.aks_identity_principal_id
+//  skip_service_principal_aad_check = true
+//}
 
 module "standard_aks_node_pool" {
   source                = "./modules/nodepool"
@@ -98,7 +103,6 @@ module "standard_aks_node_pool" {
   vm_size               = var.agent_node_pool_vm_size
   min_count             = 1
   max_count             = 3
-  node_count            = 1
 }
 
 module "sql_server_private_dns_zone" {
@@ -137,7 +141,7 @@ provider "kubernetes" {
 
 provider "helm" {
   kubernetes {
-    load_config_file       = false
+    #load_config_file       = false
     host                   = module.aks.host
     username               = module.aks.username
     password               = module.aks.password
@@ -147,12 +151,22 @@ provider "helm" {
   }
 }
 
+provider "kubectl" {
+  load_config_file       = false
+  host                   = module.aks.host
+  cluster_ca_certificate = module.aks.cluster_ca_certificate
+  username               = module.aks.username
+  password               = module.aks.password
+  client_certificate     = module.aks.client_certificate
+  client_key             = module.aks.client_key
+}
+
 module "ingress_public_ip" {
   source              = "./modules/public_ip"
   name                = var.aks_ingress_public_ip_name
-  domain_name_label   = "test-aks-ingress-hello-world"
+  domain_name_label   = var.hello_world_domain_name_label
   location            = var.location
-  resource_group_name = var.resource_group_name
+  resource_group_name = module.aks.node_resource_group
 }
 
 resource "azurerm_dns_zone" "dns_zone" {
@@ -160,27 +174,29 @@ resource "azurerm_dns_zone" "dns_zone" {
   resource_group_name = azurerm_resource_group.rg.name
 }
 
-resource "azurerm_dns_cname_record" "ingress_dns_record" {
-  name                = "test-aks-ingress-hello-world"
+resource "azurerm_dns_a_record" "ingress_dns_record" {
+  name                = var.hello_world_domain_name_label
   resource_group_name = azurerm_resource_group.rg.name
   zone_name           = azurerm_dns_zone.dns_zone.name
   ttl                 = 900
-  record              = module.ingress_public_ip.fqdn
+  records             = [module.ingress_public_ip.ip_address]
 }
 
 module "nginx_ingress_controller" {
   source                   = "./modules/nginx_ingress_controller"
-  ingress_class_name       = "ingress_nginx"
-  namespace                = "ingress_nginx"
+  ingress_class_name       = "ingress-nginx"
+  namespace                = "ingress-nginx"
   load_balancer_ip_address = module.ingress_public_ip.ip_address
+  depends_on               = [module.standard_aks_node_pool, module.aks]
 }
 
 module "certificate_manager" {
   source                                = "./modules/cert_manager"
+  depends_on                            = [module.aks, module.standard_aks_node_pool, module.nginx_ingress_controller]
   namespace                             = "cert-manager"
   http_acme_resolver_ingress_class_name = module.nginx_ingress_controller.ingress_class_name
-  lets_encrypt_cluster_issuer_name      = var.cert_issuer_name //"letsencrypt-staging"
-  lets_encrypt_private_key_secret_name  = "letsencrypt-staging"
+  lets_encrypt_cluster_issuer_name      = var.cert_issuer_name
+  lets_encrypt_private_key_secret_name  = var.cert_issuer_name
   lets_encrypt_user_email               = "sukanya.pedavalli@gmail.com"
   lets_encrypt_server                   = "https://acme-staging-v02.api.letsencrypt.org/directory"
 }
@@ -192,9 +208,10 @@ resource "kubernetes_namespace" "app_namespace" {
 }
 
 resource "helm_release" "hello_world_app" {
-  name      = "hello-world"
-  namespace = local.app_namespace
-  chart     = "./apps/hello-world"
+  name       = "hello-world"
+  namespace  = local.app_namespace
+  chart      = "./apps/hello-world"
+  depends_on = [module.aks, module.nginx_ingress_controller, module.certificate_manager]
 
   set {
     name  = "ingress.className"
@@ -203,7 +220,8 @@ resource "helm_release" "hello_world_app" {
 
   set {
     name  = "ingress.dnsname"
-    value = azurerm_dns_cname_record.ingress_dns_record.fqdn
+    //value = "${var.hello_world_domain_name_label}.${var.dns_zone_name}"
+    value = module.ingress_public_ip.fqdn
   }
 
   set {

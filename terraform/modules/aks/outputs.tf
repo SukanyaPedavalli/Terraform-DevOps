@@ -14,12 +14,12 @@ output "host" {
 }
 
 output "username" {
-  value       = azurerm_kubernetes_cluster.aks_cluster.0.username
+  value       = azurerm_kubernetes_cluster.aks_cluster.kube_config.0.username
   description = "Specifies the username"
 }
 
 output "password" {
-  value       = azurerm_kubernetes_cluster.aks_cluster.0.password
+  value       = azurerm_kubernetes_cluster.aks_cluster.kube_config.0.password
   description = "Specifies the password for the aks cluster"
 }
 

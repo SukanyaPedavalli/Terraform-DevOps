@@ -93,3 +93,24 @@ variable "sql_server_firewall_rules" {
     end_ip_address   = string
   }))
 }
+
+variable "aks_ingress_public_ip_name" {
+  description = "(Required) the public ip name of the hello world app"
+  type        = string
+}
+
+variable "dns_zone_name" {
+  description = "(Required) The public dns zone name to create"
+  type        = string
+}
+
+variable "hello_world_domain_name_label" {
+  description = "(Required) The domain name label to be used for the hello world app"
+  type        = string
+}
+
+variable "cert_issuer_name" {
+  description = "(Optional) The lets encrypt cert issuer name"
+  type        = string
+  default     = "letsencrypt-staging"
+}
