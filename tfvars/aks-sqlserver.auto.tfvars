@@ -17,3 +17,6 @@ sql_server_firewall_rules = [{
   start_ip_address = "75.60.207.196"
   end_ip_address   = "75.60.207.196"
 }]
+aks_ingress_public_ip_name    = "test-aks-ingress-public-ip"
+dns_zone_name                 = "pedavalli.com"
+hello_world_domain_name_label = "test-aks-ingress-hello-world"
