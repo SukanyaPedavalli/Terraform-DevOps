@@ -1,0 +1,28 @@
+# the pipeline will be triggered if a change is pushed to aks, vm or to any releases branch. However, it won't be triggered if a change is made to a releases branch that starts with old, main,aks-private,ask-sqlserver.
+# In addition to specifying branch names in the branches lists, you can also configure triggers based on tags 
+
+trigger:
+  branches:
+    include:
+    - aks
+    - virtual-machine
+    - ref/tags/{tagname}
+    - release/*
+    exclude:
+    - main
+    - aks-private
+    - aks-sqlserver
+    - release/old*
+
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- script: echo Hello, world!
+  displayName: 'Run a one-line script'
+
+- script: |
+    echo Add other tasks to build, test, and deploy your project.
+    echo See https://aka.ms/yaml
+  displayName: 'Run a multi-line script'
