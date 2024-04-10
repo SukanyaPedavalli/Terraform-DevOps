@@ -10,7 +10,6 @@ trigger:
     - release/*
     exclude:
     - main
-    - aks-private
     - aks-sqlserver
     - release/old*
 
