@@ -1,7 +1,12 @@
-# the pipeline will be triggered if a change is pushed to aks, vm or to any releases branch. However, it won't be triggered if a change is made to a releases branch that starts with old, main,aks-private,ask-sqlserver.
+# the pipeline will be triggered if a change is pushed to aks, vm or to any releases branch. However, it won't be triggered if a change is made to a releases branch that starts with old, main,ask-sqlserver.
 # In addition to specifying branch names in the branches lists, you can also configure triggers based on tags 
+# If you have many team members uploading changes often, you may want to reduce the number of runs you start. If you set batch to true, when a
+#                 pipeline is running, the system waits until the run is completed, then starts another run with all changes that have not yet been built.
+# If the pipeline has multiple jobs and stages, then the first run should still reach a terminal state by completing or skipping all its jobs and stages before the second run can start. For this reason, you must exercise caution when using this feature in a pipeline with multiple stages or approvals. If you wish to batch your builds in such cases, it is recommended that you split your CI/CD process into two pipelines - one for build (with batching) and one for deployments
+# You can opt out of CI triggers entirely by specifying trigger: none.
 
 trigger:
+  batch: true
   branches:
     include:
     - aks
