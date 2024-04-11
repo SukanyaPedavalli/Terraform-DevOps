@@ -18,7 +18,18 @@ trigger:
     - aks-sqlserver
     - release/old*
 
-
+schedules:
+- cron: ''
+  displayName: 'Night schedule'
+  branches:
+    include:
+    - aks
+    exclude:
+    - virtual-machine
+    - ref/tags/{tagname}
+    - release/*
+    - main
+    - aks-sqlserver
 pool:
   vmImage: ubuntu-latest
 
