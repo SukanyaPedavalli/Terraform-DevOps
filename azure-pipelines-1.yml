@@ -19,7 +19,7 @@ trigger:
     - release/old*
 
 schedules:
-- cron: ''
+- cron: '0 0 * * Mon-Fri'
   displayName: 'Night schedule'
   branches:
     include:
